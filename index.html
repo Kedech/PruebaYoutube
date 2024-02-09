@@ -1,75 +1,63 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Música de fondo desde YouTube</title>
-</head>
-<body>
+<html>
+  <body>
+    <!-- 1. El <iframe> (y el reproductor de video) reemplazarán esta etiqueta <div>. -->
+    <div id="player"></div>
 
-<!-- Contenedor para el reproductor de YouTube -->
-<div id="reproductor"></div>
+    <!-- 2. Agregamos un botón para controlar la reproducción del video -->
+    <button onclick="togglePlayPause()">Play/Pause</button>
 
-<!-- Botón de reproducción/pausa -->
-<button id="botonReproduccion">Reproducir/Pausar</button>
+    <script>
+      // 3. Este código carga el código de la API del reproductor de IFrame de YouTube de forma asíncrona.
+      var tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-<script>
-// Función para cargar el reproductor de YouTube
-function cargarReproductor() {
-  // ID del video de YouTube que quieres reproducir
-  const videoId = 'EH30RAXnRWs';
+      // Variables para el reproductor de YouTube
+      var player;
+      var isPlaying = false;
 
-  // Configuración del reproductor
-  const opciones = {
-    height: '0',
-    width: '0',
-    videoId: videoId,
-    playerVars: {
-      autoplay: 0, // El video no se reproducirá automáticamente al cargar
-      controls: 0, // Ocultar los controles del reproductor de YouTube
-      loop: 1, // Repetir el video en bucle
-      modestbranding: 1, // Ocultar el logo de YouTube
-      rel: 0, // Evitar que aparezcan videos relacionados al final
-      mute: 1, // Reproducir el video en silencio
-      origin: 'enablejsapi=1&origin=https://prueba-youtube-8ns2.vercel.app/'
-    },
-    events: {
-      'onReady': onPlayerReady,
-    }
-  };
-
-  // Crear un nuevo reproductor de YouTube
-  const reproductor = new YT.Player('reproductor', opciones);
-
-  // Función que se ejecuta cuando el reproductor está listo
-  function onPlayerReady(event) {
-    // Obtener referencia al botón de reproducción/pausa
-    const botonReproduccion = document.getElementById('botonReproduccion');
-
-    // Agregar evento al botón para controlar la reproducción/pausa
-    botonReproduccion.addEventListener('click', () => {
-      if (reproductor.getPlayerState() === YT.PlayerState.PAUSED ||
-          reproductor.getPlayerState() === YT.PlayerState.ENDED) {
-        reproductor.playVideo();
-      } else {
-        reproductor.pauseVideo();
+      // 4. Esta función crea un <iframe> (y el reproductor de YouTube)
+      //    después de que se descargue el código de la API.
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: 'M7lc1UVf-VE',
+          playerVars: {
+            'playsinline': 1
+          },
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
       }
-    });
-  }
-}
 
-// Cargar la API de YouTube
-function cargarAPIYoutube() {
-  const etiquetaScript = document.createElement('script');
-  etiquetaScript.src = 'https://www.youtube.com/iframe_api';
-  const primerScript = document.getElementsByTagName('script')[0];
-  primerScript.parentNode.insertBefore(etiquetaScript, primerScript);
-}
+      // 5. La API llamará a esta función cuando el reproductor de video esté listo.
+      function onPlayerReady(event) {
+        // No necesitamos iniciar la reproducción automáticamente aquí.
+      }
 
-// Llamar a las funciones para cargar la API y el reproductor
-cargarAPIYoutube();
-window.onYouTubeIframeAPIReady = cargarReproductor;
-</script>
+      // 6. La API llama a esta función cuando cambia el estado del reproductor.
+      //    Utilizaremos esta función para detectar cuando el video esté pausado o reproduciéndose.
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING) {
+          isPlaying = true;
+        } else {
+          isPlaying = false;
+        }
+      }
 
-</body>
+      // 7. Función para alternar la reproducción/pausa del video cuando se hace clic en el botón.
+      function togglePlayPause() {
+        if (isPlaying) {
+          player.pauseVideo();
+        } else {
+          player.playVideo();
+        }
+      }
+    </script>
+  </body>
 </html>
